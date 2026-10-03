@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Амьтдын үржил, хөгжил</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Neucha&family=Jost:wght@500;600;700;800&display=swap">
+<style>
+:root{
+  --sand:#fff6e6; --ink:#2a2118; --muted:#6b5d4f; --line:#efe2c8; --card:#ffffff;
+  --teal:#0f766e; --teal-d:#0b5953; --teal-soft:#d9f3ef;
+  --ins:#f59e0b; --ins-d:#c27c06; --ins-soft:#fff1d1;
+  --aqu:#0891b2; --aqu-d:#066b85; --aqu-soft:#dbf3fa;
+  --bir:#3b82f6; --bir-d:#2563c9; --bir-soft:#e1ecff;
+  --mam:#a16207; --mam-d:#7c4a05; --mam-soft:#f6ead2;
+  --hum:#e11d48; --hum-d:#b8123a; --hum-soft:#ffe3ea;
+  --green:#22a565; --green-d:#178048; --red:#e5484d;
+  --shadow:0 10px 26px rgba(90,60,20,.14);
+  --hfont:"Neucha","Jost",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{color:var(--ink);font-family:"Jost","Segoe UI",system-ui,sans-serif;font-weight:500;font-size:21px;line-height:1.42;overflow:hidden;
+  background-color:var(--sand);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='%23a16207' fill-opacity='.07'%3E%3Cg transform='translate(40 50) rotate(-20)'%3E%3Cellipse cx='0' cy='10' rx='12' ry='10'/%3E%3Cellipse cx='-12' cy='-6' rx='4.5' ry='6'/%3E%3Cellipse cx='-4' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='5' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='13' cy='-6' rx='4.5' ry='6'/%3E%3C/g%3E%3Cg transform='translate(140 140) rotate(25)'%3E%3Cellipse cx='0' cy='10' rx='12' ry='10'/%3E%3Cellipse cx='-12' cy='-6' rx='4.5' ry='6'/%3E%3Cellipse cx='-4' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='5' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='13' cy='-6' rx='4.5' ry='6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+button{font:inherit;cursor:pointer}
+
+/* ===== Header ===== */
+.top{position:fixed;inset:0 0 auto 0;height:62px;display:flex;align-items:center;gap:14px;padding:0 18px;z-index:20;background:linear-gradient(180deg,#128177,var(--teal-d));color:#fff}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-12px;height:12px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='12' viewBox='0 0 60 12'%3E%3Cpath d='M0 0 Q15 12 30 0 Q45 12 60 0Z' fill='%230b5953'/%3E%3C/svg%3E") repeat-x top/60px 12px}
+.brand{font-family:var(--hfont);font-size:24px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.brand .bn{display:inline-block;font-size:28px;animation:look 4s ease-in-out infinite}
+@keyframes look{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.stage{flex:1;min-width:0}
+.stage-name{color:#ffe08a;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.timer{display:flex;align-items:center;gap:8px;font-weight:800;font-variant-numeric:tabular-nums;font-size:23px;padding:3px 14px;border-radius:12px;background:rgba(255,255,255,.14);color:#fff}
+.timer.warn{background:#ffe08a;color:#7c4a05}
+.timer.over{background:#ffc2c2;color:#b8123a}
+.tbtn{border:2px solid rgba(255,255,255,.3);background:transparent;border-radius:12px;padding:5px 12px;font-weight:700;font-size:16px;color:#fff}
+.tbtn:hover{background:rgba(255,255,255,.12)}
+.progress{position:fixed;top:62px;left:0;height:4px;background:var(--ins);z-index:21;transition:width .4s}
+
+/* ===== Slides ===== */
+.deck{position:absolute;inset:80px 0 74px 0;z-index:1}
+.slide{position:absolute;inset:0;overflow:auto;padding:12px clamp(16px,4vw,56px) 24px;opacity:0;visibility:hidden;transform:translateX(24px);transition:opacity .4s,transform .4s,visibility .4s}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.inner{max-width:1280px;margin:0 auto}
+h1{font-family:var(--hfont);font-weight:400;font-size:clamp(44px,6vw,80px);line-height:1.05;margin:0 0 14px;color:var(--teal-d)}
+h2{font-family:var(--hfont);font-weight:400;font-size:clamp(30px,3.4vw,46px);margin:0 0 4px;display:flex;align-items:center;gap:12px;color:var(--teal-d)}
+h3{font-size:22px;margin:0 0 8px;font-weight:800}
+.sub{color:var(--muted);margin:0 0 12px;font-size:19px}
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:16px 20px;position:relative;border-left:7px solid var(--teal)}
+.card.ins{border-left-color:var(--ins)}.card.aqu{border-left-color:var(--aqu)}.card.bir{border-left-color:var(--bir)}.card.mam{border-left-color:var(--mam)}.card.hum{border-left-color:var(--hum)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:14px;padding:10px 18px;font-weight:700;background:var(--teal);color:#fff;box-shadow:0 4px 0 var(--teal-d);transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--teal-d)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.ghost.on{background:var(--teal-soft);border-color:var(--teal);color:var(--teal-d)}
+.btn.ins{background:var(--ins);box-shadow:0 4px 0 var(--ins-d)}
+.btn.aqu{background:var(--aqu);box-shadow:0 4px 0 var(--aqu-d)}
+.btn.bir{background:var(--bir);box-shadow:0 4px 0 var(--bir-d)}
+.btn.mam{background:var(--mam);box-shadow:0 4px 0 var(--mam-d)}
+.btn.hum{background:var(--hum);box-shadow:0 4px 0 var(--hum-d)}
+.btn.green{background:var(--green);box-shadow:0 4px 0 var(--green-d)}
+.btn.sm{padding:7px 12px;font-size:15px}
+.muted{color:var(--muted)}
+.note{background:var(--ins-soft);border-radius:16px;padding:10px 14px;margin-top:12px}
+.def{border-radius:14px;padding:9px 13px;margin:7px 0;background:var(--teal-soft)}
+.def.ins{background:var(--ins-soft)}.def.aqu{background:var(--aqu-soft)}.def.bir{background:var(--bir-soft)}.def.mam{background:var(--mam-soft)}.def.hum{background:var(--hum-soft)}
+.feedback{font-size:20px;font-weight:700;min-height:30px;margin-top:8px}
+.feedback.ok{color:var(--green-d)}.feedback.no{color:var(--red)}
+.score{font-size:21px;font-weight:800;color:var(--green-d)}
+.shake{animation:shake .45s}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* ===== Nav ===== */
+.nav{position:fixed;inset:auto 0 0 0;height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:20;gap:10px;background:linear-gradient(180deg,#5a4130,#3d2b1f)}
+.nav::before{content:"";position:absolute;left:0;right:0;top:-10px;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='12' viewBox='0 0 60 12'%3E%3Cpath d='M0 12 Q15 0 30 12 Q45 0 60 12Z' fill='%235a4130'/%3E%3C/svg%3E") repeat-x bottom/60px 12px}
+.nav .btn{background:#fff6e6;color:#3d2b1f;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.dots{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
+.dot{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:transparent;color:#f3e3c8;font-weight:700;font-size:14px;transition:.2s}
+.dot.on{background:var(--ins);border-color:var(--ins);color:#3d2b1f;transform:scale(1.15)}
+.dot.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.tnotes{position:fixed;right:18px;bottom:82px;width:min(420px,calc(100vw - 36px));background:#fffbe8;border:2px solid var(--ins);border-radius:18px;padding:14px 18px;font-size:17px;box-shadow:var(--shadow);z-index:25;display:none}
+.tnotes.show{display:block}
+.tnotes h4{margin:0 0 6px;font-size:18px}
+.tnotes ul{margin:0;padding-left:20px}
+
+/* ===== Intro ===== */
+.intro{min-height:calc(100vh - 200px);display:flex;align-items:center;justify-content:center}
+.badge{background:#fff;border-radius:34px;box-shadow:0 18px 44px rgba(90,60,20,.2);padding:26px clamp(24px,5vw,64px) 30px;text-align:center;max-width:960px;width:100%;border:4px dashed #e3cfa5;position:relative}
+.badge .animals{display:flex;justify-content:center;gap:16px;font-size:clamp(40px,5vw,60px);margin-bottom:6px}
+.badge .animals span{display:inline-block;animation:hop 2.6s ease-in-out infinite}
+.badge .animals span:nth-child(2){animation-delay:.3s}.badge .animals span:nth-child(3){animation-delay:.6s}.badge .animals span:nth-child(4){animation-delay:.9s}.badge .animals span:nth-child(5){animation-delay:1.2s}
+@keyframes hop{0%,60%,100%{transform:none}30%{transform:translateY(-10px)}}
+.badge .school{font-family:var(--hfont);font-size:clamp(26px,2.8vw,36px);color:var(--teal)}
+.badge .subject{font-family:var(--hfont);font-size:clamp(60px,8vw,108px);line-height:1;margin:4px 0 12px;color:var(--mam-d)}
+.badge .topic{display:inline-block;font-family:var(--hfont);font-size:clamp(30px,3.6vw,48px);color:#fff;padding:8px 30px;border-radius:18px;background:linear-gradient(90deg,var(--teal),#14a394)}
+.badge .teacher{margin-top:16px;font-size:clamp(22px,2.4vw,30px);font-weight:700}
+
+/* ===== Video ===== */
+.vid{background:#fff;border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+.vid canvas{display:block;width:100%;height:auto;max-height:calc(100vh - 330px);object-fit:contain;background:#eaf7ef;cursor:pointer}
+.vbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--teal-soft);flex-wrap:wrap}
+.vbar button{border:none;background:#fff;color:var(--ink);border-radius:10px;padding:6px 12px;font-weight:700;font-size:15px}
+.vprog{flex:1;min-width:120px;height:10px;border-radius:99px;background:#bfe2dc;cursor:pointer;position:relative;overflow:hidden}
+.vprog i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--teal),var(--ins));border-radius:99px}
+.vtime{color:var(--muted);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.riddle{font-size:23px;line-height:1.6}
+.reveal{margin-top:8px;font-family:var(--hfont);font-size:40px;color:var(--ins-d);opacity:0;transform:scale(.6);transition:.4s}
+.reveal.show{opacity:1;transform:none}
+
+/* ===== KWL ===== */
+table{border-collapse:separate;border-spacing:0;width:100%}
+.kwl{border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+.kwl th{font-size:24px;padding:12px 14px;color:#fff;text-align:left;font-family:var(--hfont);font-weight:400}
+.kwl th:nth-child(1){background:var(--teal)}.kwl th:nth-child(2){background:var(--bir)}.kwl th:nth-child(3){background:var(--ins)}
+.kwl td{vertical-align:top;background:#fff;border-right:2px solid var(--line);padding:0;width:33.3%}
+.kwl td:last-child{border-right:none}
+.kwl.two td{width:50%}
+.kwl td div{min-height:260px;padding:14px;outline:none;font-size:20px;white-space:pre-wrap}
+.kwl td div:empty::before{content:attr(data-ph);color:#b7a790}
+.kwl td div:focus{background:#fffef2}
+.kwl td div.ro{background:#fbf6ec;color:var(--muted);font-size:18px;min-height:0;height:100%}
+.kwl td div.ro:empty::before{content:"(хоосон)"}
+.kwl.end td:nth-child(3) div{min-height:300px;font-size:22px;background:#fffaf0}
+.goals{list-style:none;padding:0;margin:0}
+.goals li{margin:7px 0;padding:8px 12px;border-radius:14px;background:var(--teal-soft)}
+
+/* ===== Canvas boxes ===== */
+.cbox{background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.cbox canvas{display:block;width:100%;height:auto;max-height:calc(100vh - 320px);object-fit:contain;background:#f1faf3}
+.cbox .ctrl{display:flex;gap:8px;flex-wrap:wrap;padding:9px 12px;background:var(--teal-soft);justify-content:center;align-items:center}
+.stinfo .t{font-family:var(--hfont);font-size:36px;color:var(--ins-d);line-height:1.1}
+.stinfo{min-height:150px;font-size:18px}
+
+/* ===== Sort / match ===== */
+.item-big{display:flex;align-items:center;gap:16px}
+.item-big .e{font-size:clamp(60px,7vw,90px);line-height:1}
+.item-big .nm{font-family:var(--hfont);font-size:38px}
+.av{display:inline-flex;width:1.1em;height:1.1em;border-radius:50%;align-items:center;justify-content:center;background:var(--mam-soft);color:var(--mam-d);font-family:var(--hfont);font-size:.8em}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.col{border-radius:18px;padding:10px 12px;min-height:110px;border:3px dashed var(--line);cursor:pointer;transition:.15s;background:#fff}
+.col:hover{transform:translateY(-2px)}
+.col h4{margin:0 0 6px;font-family:var(--hfont);font-weight:400;font-size:24px}
+.col .it{display:inline-block;background:#fff;border-radius:99px;padding:3px 10px;margin:3px;font-size:15px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match .btn{font-size:18px;padding:9px 10px;text-align:left}
+.match .btn.sel{outline:4px solid rgba(245,158,11,.7)}
+.match .btn.done{background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-d);border-color:var(--green)}
+.bars .b{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:16px;font-weight:700}
+.bars .b span:first-child{min-width:70px}
+.bars .b i{display:block;height:20px;border-radius:99px;background:linear-gradient(90deg,var(--mam),#d9a441)}
+.egg svg{width:100%;height:auto;display:block;max-height:calc(100vh - 330px)}
+.egg .hs{cursor:pointer}.egg .hs:hover{filter:brightness(1.08) drop-shadow(0 0 5px rgba(59,130,246,.7))}
+.dotsgrid{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;margin-top:8px}
+.dotsgrid i{aspect-ratio:1;border-radius:50%;background:#3b3b3b;transition:opacity .4s,transform .4s}
+.dotsgrid i.gone{opacity:.08;transform:scale(.4)}
+.dotsgrid i.live{background:var(--green);box-shadow:0 0 0 2px #bff0d4}
+.timeline{display:flex;gap:6px;flex-wrap:wrap;min-height:58px;padding:8px;border-radius:16px;background:var(--hum-soft)}
+.timeline .slot{flex:1;min-width:96px;border:2px dashed #f3a9ba;border-radius:12px;min-height:44px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;text-align:center;padding:4px;background:#fff}
+.hcards{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.hcards .btn{font-size:16px}
+.yn{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.yn .c{background:#fff;border-radius:14px;padding:8px;text-align:center;border:3px solid var(--line);font-size:15px;font-weight:700}
+.yn .c .e{font-size:32px}
+.yn .c .r{display:flex;gap:4px;margin-top:4px}
+.yn .c .r button{flex:1;border:none;border-radius:10px;padding:4px;background:var(--teal-soft);font-size:18px}
+.yn .c.ok{border-color:var(--green);background:#effcf4}.yn .c.no{border-color:var(--red)}
+
+/* ===== Quiz ===== */
+.quiz-q{font-family:var(--hfont);font-size:36px;margin:8px 0 16px;color:var(--teal-d)}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qopt{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 20px;border-radius:20px;border:3px solid var(--line);background:#fff;font-weight:700;font-size:22px;transition:.15s;box-shadow:var(--shadow)}
+.qopt:hover{border-color:var(--teal);transform:translateY(-2px)}
+.qopt .k{width:44px;height:44px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+.qopt:nth-child(1) .k{background:var(--teal)}.qopt:nth-child(2) .k{background:var(--ins)}
+.qopt:nth-child(3) .k{background:var(--bir)}.qopt:nth-child(4) .k{background:var(--hum)}
+.qopt.right{background:#d8f7e4;border-color:var(--green)}
+.qopt.wrong{background:#ffe0e0;border-color:var(--red)}
+.qopt[disabled]{cursor:default;transform:none}
+.qbar{display:flex;gap:6px;margin-bottom:10px}
+.qbar i{flex:1;height:10px;border-radius:99px;background:#eadcc1}
+.qbar i.ok{background:var(--green)}.qbar i.no{background:var(--red)}.qbar i.cur{background:var(--ins)}
+.result{text-align:center;padding:30px}
+.result .bigstars{font-size:64px;letter-spacing:6px}
+.lights{display:flex;gap:10px}
+.light{flex:1;border:3px solid var(--line);background:#fff;border-radius:18px;padding:8px;text-align:center;font-weight:700;font-size:15px}
+.light .e{font-size:34px}
+.light.on{border-color:var(--teal);background:var(--teal-soft);transform:scale(1.03)}
+.light .n{font-size:22px;color:var(--teal-d)}
+.cmp th{background:var(--teal);color:#fff;font-size:15px;padding:6px 8px;text-align:left}
+.cmp th:first-child{border-radius:12px 0 0 0}.cmp th:last-child{border-radius:0 12px 0 0}
+.cmp td{font-size:15px;padding:5px 8px;border-bottom:1px solid var(--line);background:#fff}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@media (max-height:900px){
+  body{font-size:18px}
+  h2{font-size:32px}
+  .sub{font-size:16px;margin-bottom:8px}
+  .card{padding:12px 16px}
+  .riddle{font-size:20px}
+  .kwl td div{min-height:210px}
+  .note{padding:8px 12px;margin-top:8px}
+  .def{padding:6px 10px;margin:5px 0;font-size:15px}
+  .stinfo{min-height:110px;font-size:16px}.stinfo .t{font-size:30px}
+  .item-big .nm{font-size:30px}
+  .match .btn{font-size:16px;padding:7px 8px}
+  .quiz-q{font-size:30px;margin:4px 0 10px}
+  .qopt{padding:12px 16px;font-size:19px}
+  .goals li{margin:5px 0;padding:6px 10px}
+  .yn .c .e{font-size:26px}
+}
+@media (max-width:900px){
+  body{font-size:17px}
+  .grid2,.quiz-opts,.cols{grid-template-columns:1fr !important}
+  .yn{grid-template-columns:repeat(2,1fr)}
+  .brand .t{display:none}
+  .dots{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="bn">🔭</span><span class="t">Хүн байгаль · 5-р анги</span></div>
+  <div class="stage"><span class="stage-name" id="stageName"></span></div>
+  <div class="timer" id="timer" title="Хичээлийн үлдсэн хугацаа (2 удаа дарвал 40:00 болно)">⏱ <span id="tval">40:00</span></div>
+  <button class="tbtn" id="tPlay">▶ Эхлэх</button>
+  <button class="tbtn" id="notesBtn" title="Багшийн тэмдэглэл (N)">📝 Багшид</button>
+  <button class="tbtn" id="fsBtn" title="Бүтэн дэлгэц (F)">⛶</button>
+</header>
+<div class="progress" id="progress"></div>
+
+<main class="deck">
+
+<!-- 0. Танилцуулга -->
+<section class="slide" data-name="Танилцуулга" data-min="1"
+  data-notes="Хүүхдүүдтэй мэндэлж, өөрийгөө танилцуулна.|Дээд талын ▶ Эхлэх товчоор 40 минутын цагийг эхлүүлнэ.">
+  <div class="inner intro">
+    <div class="badge">
+      <div class="animals"><span>🦋</span><span>🐸</span><span>🐣</span><span>🐺</span><span>🐟</span></div>
+      <div class="school">🏫 1-р сургууль</div>
+      <div class="subject">Хүн байгаль</div>
+      <div class="topic">🐾 Амьтдын үржил, хөгжил</div>
+      <div class="teacher">👩‍🏫 Багш: В. Гэрэлтуяа</div>
+    </div>
+  </div>
+</section>
+
+<!-- 1. Оньсого ба бичлэг -->
+<section class="slide" data-name="Оньсого: Гайхамшигт хувирал" data-min="3"
+  data-notes="Оньсогыг уншиж таалгасны дараа “Хариу” товчийг дарна.|“Эрвээхэйн гайхамшигт хувирал” бичлэгийг (≈43 сек) үзүүлнэ.|Асуулт: Эрвээхэй ямар ямар хэлбэрт хувирсан бэ?">
+  <div class="inner">
+    <h2>🤔 Би хэн бэ?</h2>
+    <p class="sub">Оньсогыг таагаад, бичлэгээс миний гайхамшигт хувиралыг хараарай!</p>
+    <div class="grid2" style="grid-template-columns:.62fr 1.38fr">
+      <div class="card ins">
+        <h3>🧩 Оньсого</h3>
+        <p class="riddle">Эхлээд мөлхөж навч иднэ,<br>Дараа нь бүрхүүлдээ унтна,<br>Эцэст нь өнгөт далавчаар ниснэ.<br><span class="muted" style="font-size:18px">Би хэн бэ?</span></p>
+        <button class="btn ins" onclick="this.nextElementSibling.classList.add('show');confetti(60)">Хариу 👀</button>
+        <div class="reveal">🦋 Эрвээхэй!</div>
+      </div>
+      <div class="vid" id="vid1"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. KWL -->
+<section class="slide" data-name="Бид юу мэдэх вэ?" data-min="2"
+  data-notes="Сурагчдын хэлсэн санааг хоёр баганад шууд бичнэ.|“Шинээр мэдэж авлаа” баганыг хичээлийн төгсгөлд бөглөнө.">
+  <div class="inner">
+    <h2>🧠 Амьтдын үржлийн талаар бид юу мэдэх вэ?</h2>
+    <p class="sub">Нүдэн дээр дарж санаагаа бичээрэй. Хичээлийн төгсгөлд юу шинээр сурснаа бичнэ шүү! 🌟</p>
+    <table class="kwl two">
+      <tr><th>✅ Би мэднэ</th><th>❓ Мэдэхийг хүсэж байна</th></tr>
+      <tr>
+        <td><div contenteditable="true" data-k="ch8_kwl1" data-ph="Жишээ нь: Тахиа өндөглөдөг…"></div></td>
+        <td><div contenteditable="true" data-k="ch8_kwl2" data-ph="Жишээ нь: Мэлхий яаж томордог вэ?"></div></td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. Сэдэв -->
+<section class="slide" data-name="Амьтдын үржил, хөгжил" data-min="1"
+  data-notes="Сэдвээ зарлаж, зорилгыг хамт уншина.|Асуулт: Амьтад үр төлөө хэрхэн үлдээдэг вэ? (өндөг гаргах, амьд зулзага төрүүлэх)">
+  <div class="inner grid2" style="align-items:center;min-height:calc(100vh - 230px)">
+    <div>
+      <h1>Амьтдын<br>үржил, хөгжил 🐾</h1>
+      <p class="sub" style="font-size:22px">Амьд бие бүхэн үржиж, үр төлөө үлдээдэг. Зарим нь өндөг гаргадаг, зарим нь амьд зулзага төрүүлдэг.</p>
+    </div>
+    <div class="card">
+      <h3>🎯 Өнөөдөр бид:</h3>
+      <ul class="goals">
+        <li>🦋 Эрвээхэй, 🦗 царцааны амьдралын эргэлтийг харьцуулна</li>
+        <li>🐸 Загас, мэлхийн үржил хөгжлийг судална</li>
+        <li>🐣 Шувуу яагаад өндгөө дардгийг мэднэ</li>
+        <li>🐺 Амьд зулзага төрүүлдэг амьтдыг таньна</li>
+        <li>👶 Хүн хэрхэн өсөж хөгждөгийг мэднэ</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Эрвээхэй -->
+<section class="slide" data-name="Эрвээхэйн амьдралын эргэлт" data-min="5"
+  data-notes="Сурах бичгийн х.74–77. Байцайны цагаан эрвээхэйгээр жишээлнэ.|Үе шат бүрийн товчийг дарж, тайлбарыг уншина. “▶ Бүх хувирал” товчоор бүх үеийг дараалан харуулна.|Эр, эм эрвээхэйг далавчин дээрх хар толбоор ялгана: 1 хос — эр, 2 хос — эм.">
+  <div class="inner">
+    <h2>🦋 Эрвээхэйн амьдралын эргэлт</h2>
+    <div class="grid2" style="grid-template-columns:1.2fr .8fr;align-items:start">
+      <div class="cbox">
+        <canvas id="bfly" width="900" height="480"></canvas>
+        <div class="ctrl">
+          <button class="btn ins sm" data-bs="0">🥚 Өндөг</button>
+          <button class="btn ins sm" data-bs="1">🐛 Авгалдай</button>
+          <button class="btn ins sm" data-bs="2">💤 Хүүхэлдэй</button>
+          <button class="btn ins sm" data-bs="3">🦋 Эрвээхэй</button>
+          <button class="btn sm" id="bAll">▶ Бүх хувирал</button>
+        </div>
+      </div>
+      <div>
+        <div class="card ins stinfo" id="bInfo"></div>
+        <div class="card ins" style="margin-top:10px;padding:10px 14px">
+          <b>🔍 Эр үү, эм үү?</b> <span class="muted" style="font-size:15px">(1 хос толбо — эр, 2 хос — эм)</span>
+          <div class="row" style="margin-top:6px"><button class="btn sm" id="sxNew">🎲 Шинэ эрвээхэй</button><button class="btn ghost sm" data-sx="m">♂ Эр</button><button class="btn ghost sm" data-sx="f">♀ Эм</button></div>
+          <div class="feedback" id="sxFb" style="font-size:17px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Бүрэн ба бүрэн бус хувирал -->
+<section class="slide" data-name="Бүрэн ба бүрэн бус хувирал" data-min="5"
+  data-notes="Сурах бичгийн х.78–79. Царцаа хүүхэлдэйн үегүй — 3 үе шаттай (бүрэн бус хувирал).|Шавж бүрийг 4 үе шаттай эсвэл 3 үе шаттай хайрцагт ангилна.|Бүрэн бус хувиралтай шавжийн авгалдай эх шавжтайгаа төстэй харагддаг.">
+  <div class="inner">
+    <h2>🦗 Бүх шавжийн хөгжил ижилхэн үү?</h2>
+    <div class="grid2" style="grid-template-columns:.95fr 1.05fr;align-items:start">
+      <div class="card">
+        <svg id="cmpSvg" viewBox="0 0 480 250" style="width:100%;display:block"></svg>
+        <div class="def ins" style="font-size:16px"><b>Бүрэн хувирал</b> — өндөг, авгалдай, хүүхэлдэй, бие гүйцсэн (4 үе)</div>
+        <div class="def" style="font-size:16px"><b>Бүрэн бус хувирал</b> — өндөг, авгалдай, бие гүйцсэн (3 үе). Хүүхэлдэйн үе байхгүй!</div>
+      </div>
+      <div class="card">
+        <div class="item-big"><span class="e" id="iE"></span><div><div class="nm" id="iN"></div><div class="muted" id="iH" style="font-size:16px"></div></div></div>
+        <div class="cols">
+          <div class="col" data-b="4" style="border-color:var(--ins)"><h4 style="color:var(--ins-d)">4 үе шаттай</h4><div id="b4"></div></div>
+          <div class="col" data-b="3" style="border-color:var(--teal)"><h4 style="color:var(--teal-d)">3 үе шаттай</h4><div id="b3"></div></div>
+        </div>
+        <div class="feedback" id="iFb"></div>
+        <span class="score">⭐ <span id="iScore">0</span> / <span id="iTot">0</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Загас, мэлхий -->
+<section class="slide" data-name="Загас, мэлхийн үржил хөгжил" data-min="5"
+  data-notes="Сурах бичгийн х.80–81. Гулсуурыг хөдөлгөж мэлхийн шанаганцар хэрхэн мэлхий болохыг ажиглана.|Загасны авгалдайг жараахай, мэлхийнхийг шанаганцар гэнэ. Хоёул загастай төстэй, усанд амьдарна.|“Яагаад олон өндөг гаргадаг вэ?” товчоор 100 өндөгнөөс хэд нь үлдэхийг үзүүлнэ.">
+  <div class="inner">
+    <h2>🐸 Шанаганцар хэрхэн мэлхий болдог вэ?</h2>
+    <div class="grid2" style="grid-template-columns:1.2fr .8fr;align-items:start">
+      <div class="cbox">
+        <canvas id="frog" width="900" height="460"></canvas>
+        <div class="ctrl">
+          <span style="font-weight:700">🥚</span><input type="range" id="fP" min="0" max="5" step="0.02" value="0" style="flex:1;min-width:160px;accent-color:#0891b2" aria-label="Хөгжлийн үе"><span style="font-weight:700">🐸</span>
+          <button class="btn aqu sm" id="fPlay">▶</button>
+        </div>
+      </div>
+      <div>
+        <div class="card aqu" style="padding:12px 16px">
+          <div style="font-family:var(--hfont);font-size:30px;color:var(--aqu-d)" id="fT"></div>
+          <div id="fD" style="font-size:17px;min-height:52px"></div>
+          <div class="def aqu" style="font-size:15px">🐟 <b>Загас:</b> түрс → <b>жараахай</b> → загас</div>
+        </div>
+        <div class="card aqu" style="margin-top:10px;padding:12px 16px">
+          <b>🤔 Яагаад маш олон өндөг гаргадаг вэ?</b>
+          <div class="dotsgrid" id="eggGrid"></div>
+          <div class="row" style="margin-top:8px"><button class="btn aqu sm" id="eggRun">▶ Шалгах</button><span id="eggTxt" style="font-size:16px;font-weight:700"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Шувуу -->
+<section class="slide" data-name="Яагаад шувуу өндгөө дардаг вэ?" data-min="4"
+  data-notes="Сурах бичгийн х.82–83. Өндөгний хэсэг бүр дээр дарж нэрийг нь хэлүүлнэ (чанасан өндгийг зүсэж үзүүлбэл бүр сайн).|Ангаахайт шувуу: нүцгэн, нүдээ нээгээгүй, эцэг эх нь тэжээнэ. Дэгдээхэйт шувуу: өдтэй, нүдээ нээсэн, удалгүй эцэг эхээ дагана.|Тахиа 8–12 өндөг гаргаж, 21 хоног дарна.">
+  <div class="inner">
+    <h2>🐣 Шувууны өндөг ба ангаахай</h2>
+    <div class="grid2" style="grid-template-columns:.95fr 1.05fr;align-items:start">
+      <div class="card bir egg">
+        <svg id="eggSvg" viewBox="0 0 420 300"></svg>
+        <div id="eggInfo" style="font-size:17px;min-height:48px">👆 Өндөгний хэсэг бүр дээр дарж үзээрэй.</div>
+      </div>
+      <div class="card bir">
+        <div class="item-big"><span class="e" id="bE"></span><div><div class="nm" id="bN"></div></div></div>
+        <div class="cols">
+          <div class="col" data-bb="a" style="border-color:var(--bir)"><h4 style="color:var(--bir-d)">🐦 Ангаахайт</h4><div class="muted" style="font-size:14px">нүцгэн, нүд нээгээгүй, эцэг эх нь тэжээнэ</div><div id="ba"></div></div>
+          <div class="col" data-bb="d" style="border-color:var(--ins)"><h4 style="color:var(--ins-d)">🐥 Дэгдээхэйт</h4><div class="muted" style="font-size:14px">өдтэй, нүд нээсэн, удалгүй эхээ дагана</div><div id="bd"></div></div>
+        </div>
+        <div class="feedback" id="bFb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Сүүгээр бойжигч -->
+<section class="slide" data-name="Амьд зулзага төрүүлдэг амьтад" data-min="4"
+  data-notes="Сурах бичгийн х.84. Эх амьтан дээр дараад, түүний төлийг сонгоно.|Эхийнхээ сүүгээр тэжээгддэг амьтдыг сүүгээр бойжигчид гэнэ.|Эм чоно бэлтрэгээ 65 орчим хоног тээж, 3–8 бэлтрэг төрүүлнэ.">
+  <div class="inner">
+    <h2>🐺 Эх ба төлийг нь холбоорой!</h2>
+    <div class="grid2" style="grid-template-columns:1.1fr .9fr;align-items:start">
+      <div class="card mam">
+        <div class="match"><div id="mP" style="display:grid;gap:8px"></div><div id="mB" style="display:grid;gap:8px"></div></div>
+        <div class="feedback" id="mFb"></div>
+      </div>
+      <div>
+        <div class="def mam"><b>Сүүгээр бойжигчид</b> — эхийнхээ сүүгээр тэжээгддэг амьтад. Үр төл нь эхийн хэвлийд өсөж хөгжинө.</div>
+        <div class="card mam bars">
+          <b>🗓️ Эхийн хэвлийд тээгдэх хугацаа</b>
+          <div class="b"><span>🐺 Чоно</span><i style="width:7%"></i>65 хоног</div>
+          <div class="b"><span>🐖 Гахай</span><i style="width:17%"></i>150 хоног</div>
+          <div class="b"><span>🐄 Үхэр</span><i style="width:32%"></i>290 хоног</div>
+          <div class="b"><span>🐘 Заан</span><i style="width:66%"></i>600 хоног</div>
+        </div>
+        <div class="note" style="font-size:16px">🐺 Бэлтрэг төрснөөс 10–14 хоногийн дараа нүдээ нээнэ. 4–6 долоо хоног эхийн сүүгээр хооллож, намар ан хийж сурна.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Хүн -->
+<section class="slide" data-name="Хүн хэрхэн өсөж хөгждөг вэ?" data-min="3"
+  data-notes="Сурах бичгийн х.85–87. Хүн аав, ээжийн хоёр жижиг эс нийлж үүсдэг. Хүүхэд ээжийнхээ хэвлийд 9–10 сар бойжино.|Картуудыг дарааллаар нь дарж хүний амьдралын үе шатыг байрлуулна.|Ээж эрүүл орчинд амьдарч, эрүүл хооллож, хорт зуршлаас хол байх хэрэгтэй.">
+  <div class="inner">
+    <h2>👶 Хүний амьдралын үе шат</h2>
+    <div class="card hum">
+      <b>Үе шатуудыг зөв дарааллаар нь дараарай:</b>
+      <div class="timeline" id="tl" style="margin-top:8px"></div>
+      <div class="hcards" id="hc"></div>
+      <div class="feedback" id="hFb"></div>
+    </div>
+    <div class="card hum" style="margin-top:12px">
+      <b>🤰 Хүүхэд ээжийнхээ хэвлийд байхад ээжид юу сайн бэ?</b> <span class="muted" style="font-size:15px">👍 сайн · 👎 муу</span>
+      <div class="yn" id="yn"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. Тест -->
+<section class="slide" data-name="Шалгацгаая!" data-min="3"
+  data-notes="Асуулт бүрийг ангиараа уншаад, гараа өргөж хариулсны дараа сонголтыг дарна.">
+  <div class="inner" id="quiz"></div>
+</section>
+
+<!-- 11. Шинээр -->
+<section class="slide" data-name="Шинээр юу мэдэж авсан бэ?" data-min="2"
+  data-notes="Хичээлийн эхэнд бичсэн 2 баганыг ангиараа уншина.|Шинээр сурсан зүйлийг сүүлийн баганад бичнэ.">
+  <div class="inner">
+    <h2>🌟 Бид шинээр юу мэдэж авсан бэ?</h2>
+    <p class="sub">Эхэнд юу мэддэг, юу мэдэхийг хүсэж байснаа санацгаая. Одоо шинээр юу сурснаа <b>сүүлийн баганад</b> бичээрэй.</p>
+    <table class="kwl end">
+      <tr><th>✅ Би мэднэ</th><th>❓ Мэдэхийг хүсэж байна</th><th>🌟 Шинээр мэдэж авлаа</th></tr>
+      <tr>
+        <td><div class="ro" data-mirror="ch8_kwl1"></div></td>
+        <td><div class="ro" data-mirror="ch8_kwl2"></div></td>
+        <td><div contenteditable="true" data-k="ch8_kwl3" data-ph="Жишээ нь: Эрвээхэй 4 үе шаттай хөгждөг…"></div></td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- 12. Дүгнэлт -->
+<section class="slide" data-name="Бид юу сурсан бэ?" data-min="2"
+  data-notes="Гол санааг хүснэгтээр давтана (сурах бичгийн х.83).|Гэрлэн дохиогоор өөрийгөө үнэлнэ.|Гэрийн даалгавар: тахианы амьдралын эргэлтийг өнгийн цаасаар дүрслэн хийх (х.83) эсвэл эрвээхэйн эргэлтийг дэвтэртээ зурах (х.77).">
+  <div class="inner">
+    <h2>🎉 Бид өнөөдөр юу сурсан бэ?</h2>
+    <div class="grid2" style="grid-template-columns:1.1fr .9fr">
+      <div class="card">
+        <table class="cmp">
+          <tr><th>Амьтан</th><th>Хаана</th><th>Өндөг / төл</th><th>Онцлог</th></tr>
+          <tr><td>🦋 Эрвээхэй</td><td>Навчин дээр</td><td>Олон өндөг</td><td>4 үе шат</td></tr>
+          <tr><td>🦗 Царцаа</td><td>Элсэн дор</td><td>Олон өндөг</td><td>3 үе шат</td></tr>
+          <tr><td>🐟🐸 Загас, мэлхий</td><td>Усанд</td><td>Маш олон, жижиг</td><td>Хамгаалдаггүй</td></tr>
+          <tr><td>🐔 Шувуу</td><td>Хуурай газар, үүрэнд</td><td>Цөөн, том</td><td>Өндгөө дардаг</td></tr>
+          <tr><td>🐺 Сүүгээр бойжигч</td><td>Эхийн хэвлийд</td><td>Амьд зулзага</td><td>Сүүгээр бойжно</td></tr>
+        </table>
+        <div class="note" style="font-size:17px">🏠 <b>Гэрийн даалгавар:</b> Тахианы амьдралын эргэлтийг өнгийн цаасаар дүрслэн хийх эсвэл эрвээхэйн амьдралын эргэлтийг дэвтэртээ зурж тайлбарлах.</div>
+      </div>
+      <div class="card">
+        <h3>🚦 Өнөөдрийн хичээлийг би…</h3>
+        <div class="lights">
+          <button class="light" data-l="g"><div class="e">🟢</div>Ойлгосон<div class="n">0</div></button>
+          <button class="light" data-l="y"><div class="e">🟡</div>Бага зэрэг<div class="n">0</div></button>
+          <button class="light" data-l="r"><div class="e">🔴</div>Тусламж<div class="n">0</div></button>
+        </div>
+        <button class="btn ghost sm" id="lReset" style="margin-top:8px">↺ Тэглэх</button>
+        <p style="font-family:var(--hfont);font-size:32px;text-align:center;margin:14px 0 0;color:var(--teal-d)">Амьтдаа хайрлан хамгаалъя! 🐾💚</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="nav">
+  <button class="btn" id="prevBtn">◀ Өмнөх</button>
+  <div class="dots" id="dots"></div>
+  <button class="btn" id="nextBtn">Дараах ▶</button>
+</nav>
+<div class="tnotes" id="tnotes"><h4>📝 Багшид зориулсан зөвлөмж</h4><ul id="tnList"></ul></div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ---------- Helpers ---------- */
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const clamp01=v=>clamp(v,0,1);
+const ease=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+const kwlMem={};const videos=[];
+const SVGNS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent,text){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e}
+
+/* ---------- Slides ---------- */
+const slides=[...document.querySelectorAll('.slide')];const dots=$('dots');let cur=0;
+slides.forEach((s,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=i+1;b.title=s.dataset.name;b.onclick=()=>go(i);dots.appendChild(b)});
+function go(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,j)=>s.classList.toggle('active',j===cur));
+  [...dots.children].forEach((d,j)=>{d.classList.toggle('on',j===cur);d.classList.toggle('done',j<cur)});
+  const s=slides[cur];
+  $('stageName').textContent=(cur+1)+'. '+s.dataset.name;
+  $('progress').style.width=((cur+1)/slides.length*100)+'%';
+  $('tnList').innerHTML='<li>⏱ Зөвлөмж хугацаа: ≈'+s.dataset.min+' мин</li>'+s.dataset.notes.split('|').map(t=>'<li>'+t+'</li>').join('');
+  $('prevBtn').disabled=cur===0;$('nextBtn').textContent=cur===slides.length-1?'🏁 Төгсгөл':'Дараах ▶';
+  s.querySelectorAll('[data-mirror]').forEach(m=>m.textContent=kwlMem[m.dataset.mirror]||'');
+  videos.forEach(v=>{if(!s.contains(v.el))v.pause()});
+}
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{
+  if(e.target.isContentEditable||e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight'||e.key==='PageDown')go(cur+1);
+  else if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+  else if(e.key==='f'||e.key==='F')toggleFS();
+  else if(e.key==='n'||e.key==='N')toggleNotes();
+});
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+function toggleNotes(){$('tnotes').classList.toggle('show')}
+$('fsBtn').onclick=toggleFS;$('notesBtn').onclick=toggleNotes;
+const isActive=e=>slides[cur].contains(e);
+
+/* ---------- Timer ---------- */
+let remain=40*60,running=false,tick=null;
+function drawT(){const a=Math.abs(remain),m=Math.floor(a/60),s=a%60;$('tval').textContent=(remain<0?'+':'')+m+':'+String(s).padStart(2,'0');$('timer').className='timer'+(remain<0?' over':remain<=300?' warn':'')}
+$('tPlay').onclick=()=>{running=!running;$('tPlay').textContent=running?'⏸ Зогсоох':'▶ Үргэлжлүүлэх';if(running)tick=setInterval(()=>{remain--;drawT()},1000);else clearInterval(tick)};
+$('timer').ondblclick=()=>{remain=40*60;drawT()};drawT();
+
+/* ---------- KWL ---------- */
+document.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;kwlMem[k]=store.get(k)||'';e.textContent=kwlMem[k];e.addEventListener('input',()=>{kwlMem[k]=e.innerText;store.set(k,kwlMem[k])})});
+
+/* ================= Drawing helpers ================= */
+const VW=1280,VH=720;
+function emoji(c,e,x,y,size){c.save();c.font=`${size}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(e,x,y);c.restore()}
+function txt(c,t,x,y,size,color,stroke='#fff'){c.save();c.font=`800 ${size}px "Jost", sans-serif`;c.textAlign='center';c.textBaseline='middle';c.lineWidth=size/5;c.strokeStyle=stroke;c.strokeText(t,x,y);c.fillStyle=color;c.fillText(t,x,y);c.restore()}
+function skyG(c,W,H,top,bot){const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,top);g.addColorStop(1,bot);c.fillStyle=g;c.fillRect(0,0,W,H)}
+function leafBig(c,x,y,w,h,holes=0){c.save();c.translate(x,y);const g=c.createLinearGradient(0,-h,0,h);g.addColorStop(0,'#8fd16b');g.addColorStop(1,'#4e9f3d');c.fillStyle=g;c.beginPath();c.ellipse(0,0,w,h,0,0,7);c.fill();
+  c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=4;c.beginPath();c.moveTo(-w,0);c.lineTo(w,0);c.stroke();c.lineWidth=2;for(let i=-3;i<=3;i++){if(!i)continue;c.beginPath();c.moveTo(i*w/4,0);c.lineTo(i*w/4+w*.12,-h*.7);c.moveTo(i*w/4,0);c.lineTo(i*w/4+w*.12,h*.7);c.stroke()}
+  c.globalCompositeOperation='destination-out';for(let i=0;i<holes;i++){c.beginPath();c.arc(((i*137)%(w*1.4))-w*.7,((i*71)%(h*1.2))-h*.6,10+(i%3)*6,0,7);c.fill()}c.restore()}
+function caterpillar(c,x,y,len,T,dir=1){const n=Math.max(4,Math.round(len/14)),r=Math.max(5,len/n*.75);c.save();
+  for(let i=n-1;i>=0;i--){const px=x-dir*i*r*1.5,py=y+Math.sin(T*6-i*.8)*r*.25;c.fillStyle=i%2?'#7cc242':'#8fd14f';c.beginPath();c.arc(px,py,r,0,7);c.fill();c.fillStyle='#4e8a26';c.beginPath();c.arc(px,py+r*.8,r*.25,0,7);c.fill()}
+  c.fillStyle='#2a2118';c.beginPath();c.arc(x+dir*r*.35,y-r*.2,r*.16,0,7);c.fill();c.restore()}
+function chrysalis(c,x,y,s,T,crack=0){c.save();c.strokeStyle='#ddd';c.lineWidth=2;c.beginPath();c.moveTo(x,y-s*1.2);c.lineTo(x,y-s*.7);c.stroke();c.translate(x,y);c.rotate(Math.sin(T*2)*.06);
+  const g=c.createLinearGradient(-s*.4,0,s*.4,0);g.addColorStop(0,'#9ccc65');g.addColorStop(1,'#c5b358');c.fillStyle=g;c.beginPath();c.moveTo(0,-s*.7);c.bezierCurveTo(s*.55,-s*.4,s*.45,s*.6,0,s*.8);c.bezierCurveTo(-s*.45,s*.6,-s*.55,-s*.4,0,-s*.7);c.fill();
+  c.strokeStyle='rgba(80,90,30,.5)';c.lineWidth=2;for(let i=-2;i<=2;i++){c.beginPath();c.moveTo(-s*.35,i*s*.18);c.quadraticCurveTo(0,i*s*.18+6,s*.35,i*s*.18);c.stroke()}
+  if(crack>0){c.strokeStyle='#5d4a1f';c.lineWidth=3;c.beginPath();c.moveTo(0,-s*.6);c.lineTo(-s*.1*crack,-s*.2);c.lineTo(s*.1*crack,0);c.lineTo(0,s*.3*crack);c.stroke()}c.restore()}
+function butterfly(c,x,y,s,flap,spots=2,open=1){c.save();c.translate(x,y);const f=Math.max(.15,Math.abs(Math.cos(flap)))*open;
+  [-1,1].forEach(side=>{c.save();c.scale(side*f,1);c.fillStyle='#fffdf5';c.strokeStyle='#cfc6ad';c.lineWidth=2;
+    c.beginPath();c.ellipse(s*.5,-s*.32,s*.55,s*.42,-.3,0,7);c.fill();c.stroke();c.beginPath();c.ellipse(s*.4,s*.3,s*.38,s*.3,.4,0,7);c.fill();c.stroke();
+    c.fillStyle='#3a3a3a';c.beginPath();c.ellipse(s*.85,-s*.55,s*.14,s*.1,-.3,0,7);c.fill();
+    c.beginPath();c.arc(s*.55,-s*.25,s*.07,0,7);c.fill();if(spots>=2){c.beginPath();c.arc(s*.45,-s*.05,s*.07,0,7);c.fill()}c.restore()});
+  c.fillStyle='#4a4038';c.beginPath();c.ellipse(0,0,s*.08,s*.45,0,0,7);c.fill();c.strokeStyle='#4a4038';c.lineWidth=2;c.beginPath();c.moveTo(0,-s*.4);c.quadraticCurveTo(-s*.1,-s*.65,-s*.18,-s*.7);c.moveTo(0,-s*.4);c.quadraticCurveTo(s*.1,-s*.65,s*.18,-s*.7);c.stroke();c.restore()}
+function flowerD(c,x,y,r,col='#ff8fb8'){c.save();c.translate(x,y);for(let i=0;i<6;i++){c.rotate(Math.PI/3);c.fillStyle=col;c.beginPath();c.ellipse(r*.55,0,r*.5,r*.28,0,0,7);c.fill()}c.fillStyle='#ffcc33';c.beginPath();c.arc(0,0,r*.3,0,7);c.fill();c.restore()}
+
+/* ================= Video engine ================= */
+function vCaption(c,text,a=1){if(!text)return;c.save();c.globalAlpha=a;c.font='700 36px "Jost", sans-serif';
+  const w=c.measureText(text).width+70,h=72,x=(VW-w)/2,y=VH-h-22;c.fillStyle='rgba(255,246,230,.96)';c.beginPath();c.roundRect(x,y,w,h,20);c.fill();c.lineWidth=4;c.strokeStyle='#0f766e';c.stroke();
+  c.fillStyle='#2a2118';c.textAlign='center';c.textBaseline='middle';c.fillText(text,VW/2,y+h/2+2);c.restore()}
+function makeVideo(elm,scenes,fileName){
+  elm.innerHTML=`<canvas width="${VW}" height="${VH}"></canvas><div class="vbar"><button class="pp">▶ Тоглуулах</button><button class="rs" title="Эхнээс нь">⏮</button><div class="vprog"><i></i></div><span class="vtime">0:00 / 0:00</span><button class="dl" title="Видео файл болгон татах">⬇ Татах</button><button class="fs" title="Томруулах">⛶</button></div>`;
+  const cv=elm.querySelector('canvas'),ctx=cv.getContext('2d'),pp=elm.querySelector('.pp'),bar=elm.querySelector('.vprog i'),tm=elm.querySelector('.vtime'),dl=elm.querySelector('.dl');
+  const total=scenes.reduce((a,s)=>a+s.d,0),starts=[];scenes.reduce((a,s)=>(starts.push(a),a+s.d),0);
+  const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');let t=0,playing=false,last=0,rec=null;
+  function render(){let i=scenes.length-1;for(let j=0;j<scenes.length;j++){if(t<starts[j]+scenes[j].d){i=j;break}}
+    const sc=scenes[i],lt=Math.min(sc.d,t-starts[i]),k=lt/sc.d;ctx.save();sc.draw(ctx,k,t,lt);ctx.restore();
+    vCaption(ctx,typeof sc.cap==='function'?sc.cap(k):sc.cap,Math.min(1,lt/.4));
+    const edge=Math.min(lt,sc.d-lt);if(edge<.3&&t>.05&&t<total-.05){ctx.fillStyle=`rgba(255,246,230,${(1-edge/.3)*.85})`;ctx.fillRect(0,0,VW,VH)}
+    bar.style.width=(t/total*100)+'%';tm.textContent=fmt(t)+' / '+fmt(total)}
+  function loop(ts){if(!playing)return;t+=Math.min(.1,(ts-last)/1000);last=ts;if(t>=total){t=total;render();pause();if(rec)rec.stop();return}render();requestAnimationFrame(loop)}
+  function play(){if(t>=total)t=0;playing=true;pp.textContent='⏸ Зогсоох';last=performance.now();requestAnimationFrame(loop)}
+  function pause(){playing=false;pp.textContent='▶ Тоглуулах'}
+  pp.onclick=()=>playing?pause():play();cv.onclick=()=>playing?pause():play();
+  elm.querySelector('.rs').onclick=()=>{t=0;render();if(!playing)play()};
+  elm.querySelector('.vprog').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();t=(e.clientX-r.left)/r.width*total;render()};
+  elm.querySelector('.fs').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else elm.requestFullscreen?.()};
+  if(!(cv.captureStream&&window.MediaRecorder))dl.style.display='none';
+  dl.onclick=()=>{if(rec)return;const mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));const chunks=[];
+    rec=new MediaRecorder(cv.captureStream(30),mime?{mimeType:mime,videoBitsPerSecond:6e6}:undefined);rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+    rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));a.download=fileName;document.body.appendChild(a);a.click();a.remove();rec=null;dl.textContent='⬇ Татах'};
+    dl.textContent='⏺ Бичиж байна…';rec.start();t=0;play()};
+  const api={el:elm,pause,render};videos.push(api);document.fonts?.ready.then(render);render();return api;
+}
+
+/* ---------- Video: Эрвээхэйн хувирал ---------- */
+function gardenBg(c){skyG(c,VW,VH,'#cdeeff','#effaf0');c.fillStyle='#8fd16b';c.fillRect(0,VH*.78,VW,VH);}
+function eggs(c,x,y,n,a=1){c.save();c.globalAlpha=a;for(let i=0;i<n;i++){c.fillStyle='#fff3b0';c.strokeStyle='#d6c46a';c.lineWidth=2;c.beginPath();c.ellipse(x+i*26,y,7,13,0,0,7);c.fill();c.stroke()}c.restore()}
+makeVideo($('vid1'),[
+  {d:6,cap:'Эм эрвээхэй байцайны навчны доод талд өндөглөнө 🥚',draw(c,k,T){gardenBg(c);leafBig(c,640,300,420,170);butterfly(c,640-200+k*120,140+Math.sin(T*4)*20,90,T*8,2);eggs(c,560,420,Math.floor(k*6),1);txt(c,'навчны доод тал',640,500,30,'#2f6b22')}},
+  {d:7,cap:'Өндөгнөөс авгалдай гарч, навч идэж томорно 🐛',draw(c,k,T){gardenBg(c);leafBig(c,640,300,420,170,Math.floor(k*14));caterpillar(c,480+k*300,330,40+k*120,T)}},
+  {d:6,cap:'Авгалдай 4–5 удаа гуужиж (хуучин хальсаа гээж) өсдөг',draw(c,k,T){gardenBg(c);leafBig(c,640,300,420,170,14);const L=160+k*30;caterpillar(c,780,330,L,T);
+    c.globalAlpha=.6;c.strokeStyle='#c9b98a';c.lineWidth=6;c.beginPath();c.moveTo(420,340);c.quadraticCurveTo(470,320,520,345);c.stroke();c.globalAlpha=1;txt(c,'хуучин хальс',470,390,26,'#8a6d2b')}},
+  {d:7,cap:'Авгалдай хүүхэлдэй болж, хоол идэлгүй хөдөлгөөнгүй байна 💤',draw(c,k,T){gardenBg(c);c.strokeStyle='#6b8f3a';c.lineWidth=14;c.beginPath();c.moveTo(200,140);c.lineTo(1080,140);c.stroke();chrysalis(c,640,300,130*(.6+.4*ease(k)),T);if(k<.3)caterpillar(c,640,300-(k/.3)*20,180*(1-k/.3)+10,T);txt(c,'💤',780,220,60,'#5b6b7d')}},
+  {d:7,cap:'Хүүхэлдэйгээс гоёмсог цагаан эрвээхэй гарлаа! 🦋',draw(c,k,T){gardenBg(c);c.strokeStyle='#6b8f3a';c.lineWidth=14;c.beginPath();c.moveTo(200,140);c.lineTo(1080,140);c.stroke();
+    if(k<.5)chrysalis(c,640,300,130,T,clamp01(k*2));else{c.globalAlpha=.6;chrysalis(c,560,300,110,0,1);c.globalAlpha=1;butterfly(c,700,300,120,k>.8?T*6:0,2,clamp01((k-.5)*3))}}},
+  {d:6,cap:'Эрвээхэй цэцгийн балаар хооллоно 🌼',draw(c,k,T){gardenBg(c);[[300,520],[640,500],[980,530]].forEach(([x,y],i)=>{c.strokeStyle='#4e9f3d';c.lineWidth=8;c.beginPath();c.moveTo(x,VH*.78);c.lineTo(x,y);c.stroke();flowerD(c,x,y,46,['#ff8fb8','#ffd166','#b28dff'][i])});
+    butterfly(c,300+k*680,330+Math.sin(T*3)*60,80,T*9,2);butterfly(c,900-k*500,250+Math.cos(T*2.5)*40,60,T*10+1,1)}},
+  {d:4,cap:'Өндөг → Авгалдай → Хүүхэлдэй → Эрвээхэй ♻️',draw(c,k,T){skyG(c,VW,VH,'#fff6e6','#ffffff');const R=200,cx=640,cy=320;c.strokeStyle='#0f766e';c.lineWidth=8;c.setLineDash([20,14]);c.lineDashOffset=-T*40;c.beginPath();c.arc(cx,cy,R,0,7);c.stroke();c.setLineDash([]);
+    eggs(c,cx-13,cy-R,2);caterpillar(c,cx+R+40,cy,90,T);chrysalis(c,cx,cy+R,70,T);butterfly(c,cx-R,cy,60,T*8,2);txt(c,'4 үе шат',cx,cy,56,'#c27c06')}},
+],'Erveekhei.webm');
+
+/* ================= Butterfly stages ================= */
+const BST=[
+  {t:'🥚 Өндөг',d:'Эм эрвээхэй цагаан, шаргал, гонзгой өндгийг <b>навчны доод талд</b> ганц ганцаар гаргана — нарны хэт халуунаас хамгаална. Амьдралдаа 1,5–2 мянган өндөг гаргадаг. ≈5 хоногийн дараа авгалдай гарна.'},
+  {t:'🐛 Авгалдай',d:'Байцайны навчаар <b>тасралтгүй хооллож</b> хурдан томорно (навч цоорхой болно). Хөгжлийн хугацаандаа 4–5 удаа хальсаа гээнэ — үүнийг <b>гуужилт</b> гэнэ.'},
+  {t:'💤 Хүүхэлдэй',d:'Авгалдай хөдөлгөөнгүй болж, бүрхүүлээр хучигдана. Утаслагаараа навч, ишинд бэхлэгдэнэ. Энэ үедээ <b>хоол иддэггүй</b>, бараг хөдөлдөггүй.'},
+  {t:'🦋 Бие гүйцсэн эрвээхэй',d:'Бүрхүүл задарч эрвээхэй гарна, далавчаа тэнийж хатаана. Цэцгийн <b>балаар</b> хооллоно. Далавчин дээр <b>1 хос</b> хар толботой бол эр, <b>2 хос</b> бол эм.'},
+];
+const bc=$('bfly'),bx=bc.getContext('2d');let BP=0,bTarget=0,bAuto=false,sx={on:false,sex:'f'};
+function bInfo(i){const s=BST[i];$('bInfo').innerHTML=`<div class="t">${s.t}</div>${s.d}`;document.querySelectorAll('[data-bs]').forEach(b=>b.style.outline=+b.dataset.bs===i?'4px solid rgba(15,118,110,.5)':'')}
+document.querySelectorAll('[data-bs]').forEach(b=>b.onclick=()=>{bAuto=false;sx.on=false;bTarget=+b.dataset.bs+.6;bInfo(+b.dataset.bs)});
+$('bAll').onclick=()=>{BP=0;bTarget=0;bAuto=true;sx.on=false};
+$('sxNew').onclick=()=>{sx.on=true;sx.sex=Math.random()<.5?'m':'f';bAuto=false;BP=bTarget=3.6;bInfo(3);$('sxFb').textContent='🔍 Толбыг тоолоорой!';$('sxFb').className='feedback'};
+document.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>{if(!sx.on){$('sxFb').textContent='👆 Эхлээд “🎲 Шинэ эрвээхэй” дарна уу';return}const f=$('sxFb');
+  if(b.dataset.sx===sx.sex){f.className='feedback ok';f.textContent=sx.sex==='m'?'🎉 Зөв! 1 хос толботой — эр эрвээхэй.':'🎉 Зөв! 2 хос толботой — эм эрвээхэй.';confetti(40)}else{f.className='feedback no';f.textContent='🤔 Далавчин дээрх хар толбыг дахин тоол!'}});
+function bStep(){if(bAuto){bTarget=Math.min(4,bTarget+.006);BP=bTarget;const i=Math.min(3,Math.floor(BP));if($('bInfo').dataset.i!=i){$('bInfo').dataset.i=i;bInfo(i)}if(BP>=4)bAuto=false}else BP+=(bTarget-BP)*.08}
+function bDraw(){const c=bx,T=performance.now()/1000,W=900,H=480;skyG(c,W,H,'#d7f0ff','#f1faf3');c.fillStyle='#8fd16b';c.fillRect(0,H*.82,W,H);
+  const st=Math.min(3,Math.floor(BP)),k=BP-st;
+  // stage bar
+  ['Өндөг','Авгалдай','Хүүхэлдэй','Эрвээхэй'].forEach((n,i)=>{const x=40+i*210;c.fillStyle=i<=st?'#f59e0b':'#eadcc1';c.beginPath();c.roundRect(x,16,190,34,17);c.fill();c.fillStyle=i<=st?'#fff':'#8a7a62';c.font='700 18px Jost,sans-serif';c.textAlign='center';c.fillText((i+1)+'. '+n,x+95,40)});
+  if(st===0){leafBig(c,450,250,330,130);eggs(c,370,330,5);txt(c,'навчны доод тал',450,400,22,'#2f6b22');if(k>.7){caterpillar(c,520,330,30,T)}}
+  else if(st===1){leafBig(c,450,250,330,130,Math.floor(k*14));caterpillar(c,300+k*250,270,40+k*130,T);txt(c,'≈'+(0.5+k*2.5).toFixed(1)+' см',450,410,24,'#c27c06')}
+  else if(st===2){c.strokeStyle='#6b8f3a';c.lineWidth=12;c.beginPath();c.moveTo(150,110);c.lineTo(750,110);c.stroke();chrysalis(c,450,250,120,T*.5,k>.85?(k-.85)*6:0);txt(c,'💤',570,180,40,'#5b6b7d')}
+  else{const open=clamp01(k*3);[[220,380],[680,390]].forEach(([x,y],i)=>{c.strokeStyle='#4e9f3d';c.lineWidth=7;c.beginPath();c.moveTo(x,H*.82);c.lineTo(x,y);c.stroke();flowerD(c,x,y,34,i?'#ffd166':'#ff8fb8')});
+    const sp=sx.on?(sx.sex==='m'?1:2):2;butterfly(c,450+(sx.on?0:Math.sin(T)*120*clamp01(k*2-.6)),240+Math.sin(T*2)*20*(sx.on?0:1),sx.on?150:120,sx.on?0:T*8,sp,open);if(sx.on)txt(c,'Эр үү, эм үү?',450,420,30,'#c27c06')}
+}
+bInfo(0);
+
+/* ================= Complete vs incomplete ================= */
+(()=>{const s=$('cmpSvg');const row=(y,label,icons,col)=>{el('text',{x:4,y:y+6,'font-size':18,'font-weight':800,fill:col},s,label);icons.forEach((ic,i)=>{const x=150+i*85;el('circle',{cx:x,cy:y,r:30,fill:ic?'#fff':'#f3f3f3',stroke:col,'stroke-width':3,'stroke-dasharray':ic?'':'6 5'},s);el('text',{x,y:y+11,'text-anchor':'middle','font-size':ic?30:26,fill:'#999'},s,ic||'—');if(i<3)el('text',{x:x+43,y:y+7,'text-anchor':'middle','font-size':20,fill:col},s,'➜')})};
+  row(60,'🦋 Эрвээхэй',['🥚','🐛','💤','🦋'],'#c27c06');row(160,'🦗 Царцаа',['🥚','🦗','','🦗'],'#0b5953');
+  ['Өндөг','Авгалдай','Хүүхэлдэй','Бие гүйцсэн'].forEach((t,i)=>el('text',{x:150+i*85,y:235,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#6b5d4f'},s,t));})();
+const INS=[{e:'🦋',n:'Эрвээхэй',s:4},{e:'🐞',n:'Шүрэн цох',s:4},{e:'🐝',n:'Зөгий',s:4},{e:'🐜',n:'Шоргоолж',s:4},{e:'🦟',n:'Шумуул',s:4},{e:'🦗',n:'Царцаа',s:3},{e:'<span class="av">Ж</span>',n:'Жоом',s:3},{e:'<span class="av">С</span>',n:'Соно',s:3}];
+let iOrd=[],ii=0,iScore=0;
+function iNew(){if(!iOrd.length||ii>=iOrd.length){iOrd=shuffle(INS);ii=0;iScore=0;$('iScore').textContent=0;$('b4').innerHTML='';$('b3').innerHTML=''}
+  if(ii>=iOrd.length)return;const it=iOrd[ii];$('iE').innerHTML=it.e;$('iN').textContent=it.n;$('iH').textContent='Хэдэн үе шаттай хөгждөг вэ?';$('iTot').textContent=iOrd.length}
+document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const it=iOrd[ii];if(!it)return;const f=$('iFb');
+  if(+b.dataset.b===it.s){iScore++;$('iScore').textContent=iScore;f.className='feedback ok';f.textContent='🎉 Зөв! '+it.n+' — '+(it.s===4?'бүрэн хувиралтай (хүүхэлдэйтэй).':'бүрэн бус хувиралтай (хүүхэлдэйгүй).');
+    const ch=document.createElement('span');ch.className='it';ch.innerHTML=it.e+' '+it.n;$('b'+it.s).appendChild(ch);confetti(30);ii++;
+    if(ii>=iOrd.length){f.textContent='🏆 Бүгдийг зөв ангиллаа!';confetti(120);setTimeout(()=>{iOrd=[];},10)}else iNew()}
+  else{f.className='feedback no';f.textContent='🤔 Энэ шавж хүүхэлдэй болдог уу? Авгалдай нь эхтэйгээ төстэй юу?';b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450)}});
+iNew();
+
+/* ================= Frog ================= */
+const FST=[
+  ['🥚 Түрс (өндөг)','Мэлхий ≈4000 өндгийг усанд гаргана. Өндөг нь наалдамхай зүйлээр бүрхэгдэж хамгаалагдана.'],
+  ['🐟 Шанаганцар','8–10 хоногийн дараа өндөгнөөс загастай төстэй авгалдай гарна. Хөлгүй, сүүлтэй, усны ургамлаар хооллоно.'],
+  ['🦵 Хойд хөл гарлаа','Шанаганцарын биеийн бүтэц аажмаар өөрчлөгдөж, эхлээд хойд мөч үүснэ.'],
+  ['🦵 Урд хөл гарлаа','Дараа нь урд мөч үүсч, сүүл нь богиносож эхэлнэ.'],
+  ['〰️ Сүүл богиносно','Сүүл улам богиносож, жижиг мэлхий болох нь.'],
+  ['🐸 Бие гүйцсэн мэлхий','Хуурай газарт гарна. Усанд ч, хуурай газар ч амьдардаг тул <b>хоёр нутагтан</b> гэнэ.']];
+const fc=$('frog'),fx=fc.getContext('2d');let fPlaying=false;
+function fDraw(){const p=+$('fP').value,c=fx,W=900,H=460,T=performance.now()/1000;const st=Math.min(5,Math.round(p));
+  $('fT').textContent=FST[st][0];$('fD').innerHTML=FST[st][1];
+  skyG(c,W,H,'#9fe0ee','#3aa7c2');c.fillStyle='#7cc66b';c.beginPath();c.ellipse(820,430,260,90,0,0,7);c.fill();
+  for(let i=0;i<6;i++){c.strokeStyle='rgba(60,120,60,.6)';c.lineWidth=4;c.beginPath();c.moveTo(40+i*30,H);c.quadraticCurveTo(50+i*30+Math.sin(T+i)*10,H-120,30+i*30,H-200);c.stroke()}
+  c.fillStyle='#5cb85c';c.beginPath();c.ellipse(700,150,90,22,0,0,7);c.fill();
+  const cx=420+(p>4.5?(p-4.5)*2*320:0),cy=260-(p>4.5?(p-4.5)*2*140:0);
+  if(p<.5){for(let i=0;i<40;i++){const a=i*2.4,r=Math.sqrt(i)*16;c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,12,0,7);c.fill();c.fillStyle='#1f1f1f';c.beginPath();c.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,4.5,0,7);c.fill()}return}
+  const grow=clamp01(p-.5)*0.6+.4,s=60*grow*(p>4?1.2:1);const tail=p<4?1:Math.max(0,1-(p-4)*1.4);
+  c.save();c.translate(cx,cy);
+  if(tail>0){c.fillStyle='#4b6b3a';c.beginPath();const tl=s*2.2*tail;c.moveTo(-s*.6,-s*.25);c.quadraticCurveTo(-s*.6-tl*.5,Math.sin(T*8)*s*.4,-s*.6-tl,0);c.quadraticCurveTo(-s*.6-tl*.5,Math.sin(T*8)*s*.4+s*.1,-s*.6,s*.25);c.fill()}
+  if(p>=1.6){const lg=clamp01((p-1.6)*1.5);c.strokeStyle='#5c8a3c';c.lineWidth=s*.16;c.lineCap='round';[-1,1].forEach(sd=>{c.beginPath();c.moveTo(-s*.4,sd*s*.35);c.lineTo(-s*.4-s*.5*lg,sd*s*(.35+.5*lg));c.lineTo(-s*.1-s*.6*lg,sd*s*(.5+.6*lg));c.stroke()})}
+  if(p>=2.6){const lg=clamp01((p-2.6)*1.5);c.strokeStyle='#5c8a3c';c.lineWidth=s*.12;[-1,1].forEach(sd=>{c.beginPath();c.moveTo(s*.35,sd*s*.35);c.lineTo(s*.6,sd*s*(.35+.4*lg));c.stroke()})}
+  c.fillStyle=p>4?'#6cbf4a':'#4b6b3a';c.beginPath();c.ellipse(0,0,s*(p>4?.75:.7),s*(p>4?.55:.5),0,0,7);c.fill();
+  c.fillStyle='#fff';[-1,1].forEach(sd=>{c.beginPath();c.arc(s*.38,sd*s*.28,s*.14,0,7);c.fill();c.fillStyle='#111';c.beginPath();c.arc(s*.42,sd*s*.28,s*.07,0,7);c.fill();c.fillStyle='#fff'});
+  c.restore();
+}
+$('fP').oninput=fDraw;
+$('fPlay').onclick=()=>{if(fPlaying)return;fPlaying=true;const st=performance.now();(function f(now){const p=Math.min(5,(now-st)/1000*.7);$('fP').value=p;fDraw();if(p<5&&isActive(fc))requestAnimationFrame(f);else fPlaying=false})(st)};
+(()=>{const g=$('eggGrid');for(let i=0;i<100;i++)g.appendChild(document.createElement('i'))})();
+$('eggRun').onclick=()=>{const cells=[...$('eggGrid').children];cells.forEach(c=>c.className='');const keep=new Set(shuffle([...Array(100).keys()]).slice(0,4));let i=0;$('eggTxt').textContent='🐟🦆 Бусад амьтад идэж байна…';
+  const order=shuffle([...Array(100).keys()]).filter(k=>!keep.has(k));const t=setInterval(()=>{for(let j=0;j<4&&i<order.length;j++,i++)cells[order[i]].classList.add('gone');if(i>=order.length){clearInterval(t);keep.forEach(k=>cells[k].classList.add('live'));$('eggTxt').textContent='100 өндөгнөөс ердөө 4 нь үлдлээ! Тиймээс маш олон өндөг гаргадаг.'}},40)};
+
+/* ================= Bird egg & sort ================= */
+const EGG={shell:['🥚 Шохойлог хальс','Олон жижиг нүх сүвтэй. Нүх сүв нь агаар, чийгийг дотогш нэвтрүүлнэ.'],mem:['〰️ Нимгэн хальс','Хальс ба цагаан уургийн хооронд 2 давхар нимгэн хальс байдаг.'],air:['💨 Агаарын хөндий','Дэгдээхэй томрох үед агаар авахад ашиглагдана.'],white:['⚪ Цагаан уураг','Уураг, ус ихтэй. Ургийг хамгаалж, тэжээнэ.'],yolk:['🟡 Шар','Уураг, өөх тос, эрдэс бодисоор баялаг — ургийн хоол тэжээл.']};
+(()=>{const s=$('eggSvg');const g=k=>{const gg=el('g',{class:'hs'},s);gg.onclick=()=>{const e=EGG[k];$('eggInfo').innerHTML=`<b>${e[0]}</b> — ${e[1]}`};return gg};
+  const sh=g('shell');el('ellipse',{cx:200,cy:150,rx:150,ry:118,fill:'#f2d3a8',stroke:'#c99a62','stroke-width':4},sh);for(let i=0;i<26;i++){const a=i/26*Math.PI*2;el('circle',{cx:200+Math.cos(a)*143,cy:150+Math.sin(a)*111,r:2,fill:'#a87b45'},sh)}
+  const mb=g('mem');el('ellipse',{cx:200,cy:150,rx:136,ry:104,fill:'#fffaf0',stroke:'#e6d6b8','stroke-width':4},mb);
+  const wh=g('white');el('ellipse',{cx:205,cy:152,rx:128,ry:96,fill:'#f7f9fc'},wh);
+  const ai=g('air');el('path',{d:'M66 112 Q48 150 66 188 Q86 150 66 112Z',fill:'#d7ecff',stroke:'#9cc7ef','stroke-width':2},ai);
+  const yk=g('yolk');el('circle',{cx:215,cy:152,r:56,fill:'#ffc531',stroke:'#f0a500','stroke-width':3},yk);
+  [['Шохойлог хальс',300,20],['Нимгэн хальс',330,290],['Агаарын хөндий',72,94],['Цагаан уураг',300,236],['Шар',215,158]].forEach(([t,x,y])=>el('text',{x,y,'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#2a2118','pointer-events':'none'},s,t));})();
+const BIRDS=[{e:'🐦',n:'Бор шувуу',t:'a'},{e:'🕊️',n:'Тагтаа',t:'a'},{e:'🦅',n:'Шонхор шувуу',t:'a'},{e:'🐦',n:'Алтан хараацай',t:'a'},{e:'🐔',n:'Тахиа',t:'d'},{e:'🦆',n:'Нугас',t:'d'},{e:'🦢',n:'Хун',t:'d'}];
+let bOrd=shuffle(BIRDS),bi=0;
+function bNew(){if(bi>=bOrd.length){$('bE').textContent='🏆';$('bN').textContent='Бүгдийг ангиллаа!';return}$('bE').textContent=bOrd[bi].e;$('bN').textContent=bOrd[bi].n}
+document.querySelectorAll('[data-bb]').forEach(b=>b.onclick=()=>{const it=bOrd[bi];if(!it)return;const f=$('bFb');
+  if(b.dataset.bb===it.t){f.className='feedback ok';f.textContent='🎉 Зөв! '+it.n+' — '+(it.t==='a'?'ангаахайт шувуу.':'дэгдээхэйт шувуу.');const ch=document.createElement('span');ch.className='it';ch.textContent=it.e+' '+it.n;$(it.t==='a'?'ba':'bd').appendChild(ch);bi++;confetti(30);bNew();if(bi>=bOrd.length)confetti(100)}
+  else{f.className='feedback no';f.textContent='🤔 Энэ шувууны ангаахай гарахдаа өдтэй юу, нүцгэн үү?';b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450)}});
+bNew();
+
+/* ================= Mammal matching ================= */
+const PAIRS=[['🐄','Үнээ','Тугал'],['🐎','Гүү','Унага'],['🐕','Нохой','Гөлөг'],['🐇','Туулай','Бөжин'],['🐑','Хонь','Хурга'],['🐐','Ямаа','Ишиг'],['🐫','Тэмээ','Ботго'],['🐺','Чоно','Бэлтрэг']];
+let mSel=null,mDone=0;
+(()=>{PAIRS.forEach((p,i)=>{const b=document.createElement('button');b.className='btn ghost';b.innerHTML=p[0]+' '+p[1];b.dataset.i=i;b.onclick=()=>{if(b.classList.contains('done'))return;document.querySelectorAll('#mP .btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');mSel=i;$('mFb').className='feedback';$('mFb').textContent='👉 Одоо төлийг нь сонгоорой'};$('mP').appendChild(b)});
+  shuffle(PAIRS.map((p,i)=>i)).forEach(i=>{const b=document.createElement('button');b.className='btn ghost';b.textContent='🍼 '+PAIRS[i][2];b.onclick=()=>{if(b.classList.contains('done'))return;const f=$('mFb');if(mSel===null){f.textContent='👈 Эхлээд эх амьтнаа сонгоорой';return}
+    if(mSel===i){b.classList.add('done');const pb=document.querySelector(`#mP .btn[data-i="${i}"]`);pb.classList.add('done');pb.classList.remove('sel');mSel=null;mDone++;f.className='feedback ok';f.textContent=`🎉 Зөв! ${PAIRS[i][1]} → ${PAIRS[i][2]}`;confetti(30);if(mDone===PAIRS.length){f.textContent='🏆 Бүгдийг зөв холболоо!';confetti(120)}}
+    else{f.className='feedback no';f.textContent='🤔 Дахин бодоорой!';b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450)}};$('mB').appendChild(b)})})();
+
+/* ================= Human stages ================= */
+const HS=['🔬 Эс','🫘 Үр хөврөл','🤰 Ураг','👶 Нярай хүүхэд','🧒 Хүүхэд нас','🧑 Залуу нас','👵 Өтлөх нас'];
+let hNext=0;
+(()=>{const tl=$('tl');HS.forEach(()=>{const d=document.createElement('div');d.className='slot';d.textContent='?';tl.appendChild(d)});
+  shuffle(HS.map((h,i)=>i)).forEach(i=>{const b=document.createElement('button');b.className='btn hum';b.textContent=HS[i];b.onclick=()=>{const f=$('hFb');
+    if(i===hNext){$('tl').children[i].textContent=HS[i];$('tl').children[i].style.borderStyle='solid';b.remove();hNext++;f.className='feedback ok';f.textContent='🎉 Зөв!';if(hNext===HS.length){f.textContent='🏆 Хүний амьдралын үе шатыг зөв дараалууллаа!';confetti(120)}}
+    else{f.className='feedback no';f.textContent='🤔 Үүний өмнө өөр үе шат байна!';b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450)}};$('hc').appendChild(b)})})();
+const YN=[['🥦','Эрүүл, амин дэмтэй хоол',1],['🚶‍♀️','Цэвэр агаарт алхах',1],['🚭','Тамхи татах',0],['🍺','Архи уух',0],['🏭','Бохир агаар',0]];
+(()=>{YN.forEach(([e,t,ok])=>{const d=document.createElement('div');d.className='c';d.innerHTML=`<div class="e">${e}</div>${t}<div class="r"><button>👍</button><button>👎</button></div>`;const [y,n]=d.querySelectorAll('button');
+  const a=v=>{d.classList.remove('ok','no');d.classList.add(v===ok?'ok':'no');if(v===ok)confetti(20)};y.onclick=()=>a(1);n.onclick=()=>a(0);$('yn').appendChild(d)})})();
+
+/* ================= Quiz ================= */
+const Q=[
+  {q:'Эрвээхэй хэдэн үе шаттай хөгждөг вэ?',o:['2','3','4','5'],a:2,e:'Өндөг, авгалдай, хүүхэлдэй, бие гүйцсэн — 4 үе.'},
+  {q:'Эрвээхэйн аль үед хоол иддэггүй, бараг хөдөлдөггүй вэ?',o:['Өндөг','Авгалдай','Хүүхэлдэй','Бие гүйцсэн'],a:2,e:'Хүүхэлдэйн үед хоол иддэггүй.'},
+  {q:'Царцааны амьдралын эргэлтэд аль үе байдаггүй вэ?',o:['Өндөг','Авгалдай','Хүүхэлдэй','Бие гүйцсэн'],a:2,e:'Царцаа бүрэн бус хувиралтай.'},
+  {q:'Мэлхийн авгалдайг юу гэдэг вэ?',o:['Жараахай','Шанаганцар','Ангаахай','Бэлтрэг'],a:1,e:'Мэлхийн авгалдай — шанаганцар.'},
+  {q:'Загас, мэлхий яагаад маш олон өндөг гаргадаг вэ?',o:['Өндөг нь том учраас','Хамгаалдаггүй, олонх нь идэгддэг','Усанд хүйтэн учраас','Шувуу шиг дардаг'],a:1,e:'Үр хөврөлөө хамгаалдаггүй тул олонх нь идэгддэг.'},
+  {q:'Тахиа өндгөө хэдэн хоног дардаг вэ?',o:['7','14','21','30'],a:2,e:'Эм тахиа 21 хоног дарна.'},
+  {q:'Чонын төлийг юу гэдэг вэ?',o:['Гөлөг','Бэлтрэг','Бөжин','Ботго'],a:1,e:'Чонын төл — бэлтрэг.'},
+  {q:'Эхийнхээ сүүгээр тэжээгддэг амьтдыг юу гэдэг вэ?',o:['Сүүгээр бойжигчид','Шавж','Хоёр нутагтан','Шувуу'],a:0,e:'Сүүгээр бойжигчид.'},
+];
+let qi=0,qRes=[];const quiz=$('quiz');
+function renderQ(){
+  if(qi>=Q.length){const s=qRes.filter(Boolean).length,st=s>=7?3:s>=5?2:s>=3?1:0;
+    quiz.innerHTML=`<div class="card result"><div class="bigstars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><h1 style="margin:10px 0">${s} / ${Q.length}</h1><p style="font-size:26px;font-weight:700">${st===3?'Гайхалтай! Та жинхэнэ амьтан судлаач боллоо! 🔭':st===2?'Сайн байна! Бага зэрэг давтвал төгс! 👍':'Хамтдаа дахин давтъя! 💪'}</p><button class="btn" onclick="qi=0;qRes=[];renderQ()">↺ Дахин эхлэх</button></div>`;if(s>=5)confetti(160);return}
+  const it=Q[qi];
+  quiz.innerHTML=`<h2>❓ Шалгацгаая! <span style="font-size:24px" class="muted">${qi+1}/${Q.length}</span></h2>
+    <div class="qbar">${Q.map((_,i)=>`<i class="${i<qi?(qRes[i]?'ok':'no'):i===qi?'cur':''}"></i>`).join('')}</div>
+    <div class="quiz-q">${it.q}</div>
+    <div class="quiz-opts">${it.o.map((o,i)=>`<button class="qopt" data-i="${i}"><span class="k">${'АБВГ'[i]}</span>${o}</button>`).join('')}</div>
+    <div class="feedback" id="qFb"></div>
+    <div style="text-align:right"><button class="btn ins" id="qNext" style="visibility:hidden">Дараагийн асуулт ▶</button></div>`;
+  quiz.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===it.a;qRes[qi]=ok;
+    quiz.querySelectorAll('.qopt').forEach(x=>{x.disabled=true;if(+x.dataset.i===it.a)x.classList.add('right')});
+    if(!ok)b.classList.add('wrong');else confetti(50);
+    const f=$('qFb');f.className='feedback '+(ok?'ok':'no');f.textContent=(ok?'🎉 Зөв! ':'❌ Буруу. ')+it.e;$('qNext').style.visibility='visible'});
+  $('qNext').onclick=()=>{qi++;renderQ()};
+}
+renderQ();
+
+/* ================= Lights ================= */
+const lcnt=JSON.parse(store.get('ch8-lights')||'{"g":0,"y":0,"r":0}');
+function drawL(){document.querySelectorAll('.light').forEach(b=>b.querySelector('.n').textContent=lcnt[b.dataset.l])}
+document.querySelectorAll('.light').forEach(b=>b.onclick=()=>{lcnt[b.dataset.l]++;store.set('ch8-lights',JSON.stringify(lcnt));drawL();b.classList.add('on');setTimeout(()=>b.classList.remove('on'),300)});
+$('lReset').onclick=()=>{lcnt.g=lcnt.y=lcnt.r=0;store.set('ch8-lights',JSON.stringify(lcnt));drawL()};drawL();
+
+/* ================= Confetti (paws & leaves) ================= */
+const cf=$('confetti'),cfx=cf.getContext('2d');let parts=[],cRun=false;
+function confetti(n){cf.width=innerWidth;cf.height=innerHeight;const cols=['#0f766e','#f59e0b','#3b82f6','#e11d48','#a16207','#22a565'];
+  for(let i=0;i<n;i++)parts.push({x:innerWidth/2+rnd(-150,150),y:innerHeight*.45,vx:rnd(-7,7),vy:-rnd(4,18),s:rnd(7,13),c:cols[i%6],r:rnd(0,6),life:120});
+  if(!cRun){cRun=true;requestAnimationFrame(cStep)}}
+function cStep(){cfx.clearRect(0,0,cf.width,cf.height);parts.forEach(p=>{p.vy+=.4;p.x+=p.vx;p.y+=p.vy;p.r+=.15;p.life--;cfx.save();cfx.translate(p.x,p.y);cfx.rotate(p.r);cfx.fillStyle=p.c;cfx.beginPath();cfx.ellipse(0,p.s*.25,p.s*.45,p.s*.38,0,0,7);cfx.fill();
+    [[-.45,-.3],[-.15,-.5],[.15,-.5],[.45,-.3]].forEach(([dx,dy])=>{cfx.beginPath();cfx.arc(dx*p.s,dy*p.s,p.s*.16,0,7);cfx.fill()});cfx.restore()});
+  parts=parts.filter(p=>p.life>0&&p.y<cf.height+20);if(parts.length)requestAnimationFrame(cStep);else{cRun=false;cfx.clearRect(0,0,cf.width,cf.height)}}
+
+/* ================= Main loop ================= */
+function frame(){if(isActive(bc)){bStep();bDraw()}if(isActive(fc)&&!fPlaying)fDraw();requestAnimationFrame(frame)}
+go(0);bDraw();fDraw();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
